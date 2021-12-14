@@ -1,0 +1,3 @@
+[submodule "familyGan"]
+	path = familyGan
+	url = https://github.com/urielsinger/familyGan.git
