@@ -24,22 +24,14 @@ class FacesDataset:
 
     @staticmethod
     def load_image(
-        filepaths: tf.Tensor, n_channels: int
+        filepath: tf.Tensor, n_channels: int
     ) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
 
-        image_file1 = tf.io.read_file(filename=filepaths[0])
-        image1 = tf.image.decode_png(
-            contents=image_file1, channels=n_channels, dtype=tf.uint8
+        image_file = tf.io.read_file(filename=filepath)
+        image = tf.image.decode_png(
+            contents=image_file, channels=n_channels, dtype=tf.uint8
         )
-        image_file2 = tf.io.read_file(filename=filepaths[1])
-        image2 = tf.image.decode_png(
-            contents=image_file2, channels=n_channels, dtype=tf.uint8
-        )
-        image_file3 = tf.io.read_file(filename=filepaths[2])
-        image3 = tf.image.decode_png(
-            contents=image_file3, channels=n_channels, dtype=tf.uint8
-        )
-        return image1, image2, image3
+        return image
 
     def load_train_test(self) -> Tuple[List, List]:
         """
@@ -72,7 +64,7 @@ class FacesDataset:
 
         return X_train, X_test, y_train, y_test
 
-    def normalize_y(X, y):
+    def normalize_y(self, X, y):
 
         y = tf.image.convert_image_dtype(y, dtype=tf.float32)
         y = tf.math.divide(y, 255.0)
@@ -83,19 +75,21 @@ class FacesDataset:
 
             dataset = tf.data.Dataset.from_tensor_slices((X, y))
             dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+            for parent, child in dataset:
+                logger.debug(f"parent: {type(parent)}, child: {type(child)}")
+                break
 
             dataset = dataset.map(
                 lambda x, y: (
                     (
-                        FacesDataset.load_image(x[FATHER]),
-                        FacesDataset.load_image(x[MOTHER]),
+                        FacesDataset.load_image(x[FATHER], 3),
+                        FacesDataset.load_image(x[MOTHER], 3),
                     ),
-                    FacesDataset.load_image(y),
+                    FacesDataset.load_image(y, 3),
                 ),
-                self.num_parallel_calls,
             )
 
-            dataset = dataset.map(self.normalize_y, self.num_parallel_calls)
+            dataset = dataset.map(self.normalize_y)
 
             if is_train:
                 dataset = dataset.batch(batch_size=self.batch_size, drop_remainder=True)
