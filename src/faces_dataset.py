@@ -10,8 +10,9 @@ MOTHER = 1
 
 
 class FacesDataset:
-    def __init__(self):
+    def __init__(self, summary_filepath):
 
+        self.summary_filepath = summary_filepath
         self.dataset_train_len = None
         self.dataset_test_len = None
 
@@ -40,7 +41,7 @@ class FacesDataset:
         )
         return image1, image2, image3
 
-    def load_train_test(self, dataset_summary_fp: Text) -> Tuple[List, List]:
+    def load_train_test(self) -> Tuple[List, List]:
         """
         Function to load train test data files from json
 
@@ -54,7 +55,7 @@ class FacesDataset:
 
         logger.info("Using presaved Train and Test data")
 
-        with open(dataset_summary_fp, "r") as fp:
+        with open(self.summary_filepath, "r") as fp:
             dataset_summary = json.load(fp)
             X, y = [], []
             for idx, family in dataset_summary.items():
@@ -102,9 +103,7 @@ class FacesDataset:
                 dataset = dataset.batch(batch_size=1, drop_remainder=True)
             return dataset
 
-        X_train, X_test, y_train, y_test = self.load_train_test(
-            "../data/dataset_summary.json"
-        )
+        X_train, X_test, y_train, y_test = self.load_train_test()
 
         self.dataset_train_len = len(y_train)
         self.dataset_test_len = len(y_test)
