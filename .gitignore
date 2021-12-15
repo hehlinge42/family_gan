@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 # Large files
+data/checkpoints/checkpoints_family_gan_v1.data-00000-of-00001
