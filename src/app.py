@@ -1,8 +1,10 @@
 from pathlib import WindowsPath
+from re import S
 import streamlit as st
 import pandas as pd
 import numpy as np
 from PIL import Image
+import matplotlib.pyplot as plt
 
 import tensorflow_hub as hub
 import tensorflow as tf
@@ -50,24 +52,30 @@ with st.container():
 
 with st.container():
     st.header("... and their gorgeous children look like:")
-    model_son = load_model_son("./data/models/pix2pix_daughter_lambda50.h5")
-    # model_daughter = load_model_daughter("../data/models/pix2pix_daughter_v1")
+    model_son = load_model_son("./data/models/pix2pix_son_lambda10.h5")
+    model_daughter = load_model_daughter("./data/models/pix2pix_daughter_lambda50.h5")
     if st.button("Generate Children"):
         col1, col2 = st.columns(2)
+        parent_one_tensor = tf.io.decode_image(parent_one)
+        parent_two_tensor = tf.io.decode_image(parent_two)
+        parent_one_tensor_expanded = tf.expand_dims(parent_one_tensor, axis=0)
+        parent_two_tensor_expanded = tf.expand_dims(parent_two_tensor, axis=0)
         with col1:
             st.text("son")
-            parent_one_tensor = tf.io.decode_image(parent_one)
-            parent_two_tensor = tf.io.decode_image(parent_two)
-            parent_one_tensor_expanded = tf.expand_dims(parent_one_tensor, axis=0)
-            parent_two_tensor_expanded = tf.expand_dims(parent_two_tensor, axis=0)
             son = model_son(
                 (parent_one_tensor_expanded, parent_two_tensor_expanded)
             ).numpy()
             son = np.squeeze(son, axis=0)
-            logger.debug(f"son: {type(son)}, {son.shape}, {son}")
+            son = np.where(son < 0, 0, son)
+            son = np.where(son > 1, 1, son)
             st.image(son, width=250)
 
         with col2:
             st.text("daughter")
-            # daughter = model_son(parent_one_img, parent_two_img)
-            # st.image(daughter, width=250)
+            daughter = model_daughter(
+                (parent_one_tensor_expanded, parent_two_tensor_expanded)
+            ).numpy()
+            daughter = np.squeeze(daughter, axis=0)
+            daughter = np.where(daughter < 0, 0, daughter)
+            daughter = np.where(daughter > 1, 1, daughter)
+            st.image(daughter, width=250)
