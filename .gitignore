@@ -130,3 +130,6 @@ dmypy.json
 
 # Large files
 data/checkpoints/checkpoints_family_gan_v1.data-00000-of-00001
+data/models/pix2pix_son_v1.h5
+data/models/pix2pix_daughter_lambda50.h5
+data/models/pix2pix_son_v1/variables/variables.data-00000-of-00001
