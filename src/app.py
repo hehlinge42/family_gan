@@ -52,8 +52,10 @@ with st.container():
 
 with st.container():
     st.header("... and their gorgeous children look like:")
-    model_son = load_model_son("./data/models/pix2pix_son_lambda10.h5")
-    model_daughter = load_model_daughter("./data/models/pix2pix_daughter_lambda50.h5")
+    model_son = load_model_son("./data/models/pix2pix_son_lambda10_new_disc.h5")
+    model_daughter = load_model_daughter(
+        "./data/models/pix2pix_daughter_lambda10_new_disc.h5"
+    )
     if st.button("Generate Children"):
         col1, col2 = st.columns(2)
         parent_one_tensor = tf.io.decode_image(parent_one)
